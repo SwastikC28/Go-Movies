@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"time"
-	"user-service/internal/app"
+	"user-service/internal/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -16,12 +16,12 @@ func main() {
 		log.Println("Failed to Connect to DB")
 	}
 
-	userMS := app.NewApp("userMS", db, nil)
+	app := config.NewApp("user-service", db, nil)
 
-	userMS.Init()
+	app.Init()
 
 	log.Println("Server started successfully.")
-	userMS.StartServer()
+	app.StartServer()
 }
 
 func connectDB() *gorm.DB {
