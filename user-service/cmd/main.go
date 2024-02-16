@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"time"
+	"user-service/internal/app"
 	"user-service/internal/config"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -17,7 +18,7 @@ func main() {
 		panic("Failed to connect to DB")
 	}
 
-	app := config.NewApp("user-service", db, nil)
+	userMS := config.NewApp("user-service", db, nil)
 
 	// Initialize User Microservice
 	userMS.Init()
