@@ -30,7 +30,7 @@ func NewApp(name string, db *gorm.DB, wg *sync.WaitGroup) *App {
 
 func (app *App) InitializeRouter() {
 	app.Router = mux.NewRouter().StrictSlash(true)
-	app.Router = app.Router.PathPrefix("/").Subrouter()
+	app.Router = app.Router.PathPrefix("/api").Subrouter()
 
 	app.Router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

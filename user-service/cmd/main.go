@@ -14,14 +14,23 @@ func main() {
 
 	if db == nil {
 		log.Println("Failed to Connect to DB")
+		panic("Failed to connect to DB")
 	}
 
 	app := config.NewApp("user-service", db, nil)
 
-	app.Init()
+	// Initialize User Microservice
+	userMS.Init()
 
-	log.Println("Server started successfully.")
-	app.StartServer()
+	// Register User Microservice
+	app.RegisterRoute(userMS)
+
+	// Migrate Table
+	app.TableMigration(userMS)
+
+	// Start Microservice
+	log.Println("User microservice started successfully.")
+	userMS.StartServer()
 }
 
 func connectDB() *gorm.DB {
@@ -41,7 +50,7 @@ func connectDB() *gorm.DB {
 	db.LogMode(true)
 	// utf8_general_ci is the default collate for utf8 and it is okay to not specify it.
 	// ci means case insensitive.
-	db = db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci")
+	// db = db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci")
 
 	db.BlockGlobalUpdate(true)
 

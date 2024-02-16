@@ -1,31 +1,27 @@
 package controller
 
 import (
-	"log"
+	"fmt"
 	"net/http"
+	"shared/utils/web"
 
 	"github.com/gorilla/mux"
 )
 
-type UserController struct{}
-
-func (controller *UserController) RegisterRoute(router *mux.Router) {
-	log.Println("------Initializing User Controller-------")
-	userRouter := router.PathPrefix("/api").Subrouter()
-
-	userRouter.HandleFunc("/user", controller.CreateUser).Methods(http.MethodPost)
-	userRouter.HandleFunc("/user", controller.GetUsers).Methods(http.MethodGet)
-	userRouter.HandleFunc("/user/:id", controller.GetUser).Methods(http.MethodGet)
-	userRouter.HandleFunc("/user/:id", controller.DeleteUser).Methods(http.MethodDelete)
-	userRouter.HandleFunc("/user/:id", controller.UpdateUser).Methods(http.MethodPut)
+type UserController struct {
 }
 
-func (controller *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {}
+func (controller *UserController) RegisterRoutes(router *mux.Router) {
+	fmt.Println("-----User Controller Registered-----")
+	userRouter := router.PathPrefix("/user").Subrouter()
+	userRouter.HandleFunc("/", controller.createUser).Methods(http.MethodPost)
+	userRouter.HandleFunc("/", controller.getUser).Methods(http.MethodGet)
+}
 
-func (controller *UserController) GetUser(w http.ResponseWriter, r *http.Request) {}
+func (controller *UserController) createUser(w http.ResponseWriter, r *http.Request) {
+	web.RespondJSON(w, http.StatusOK, "Created User Successfully")
+}
 
-func (controller *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {}
-
-func (controller *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {}
-
-func (controller *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {}
+func (controller *UserController) getUser(w http.ResponseWriter, r *http.Request) {
+	web.RespondJSON(w, http.StatusOK, "Get User Successfully")
+}
