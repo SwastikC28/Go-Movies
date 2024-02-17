@@ -7,11 +7,12 @@ import (
 )
 
 type Repository interface {
-	GetAllRecords()
-	GetFirst()
-	Add()
-	Update()
-	Save()
+	GetAllRecords(uow *relationaldb.UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
+	GetFirst(uow *relationaldb.UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
+	Add(uow *relationaldb.UnitOfWork, out interface{}) error
+	Update(uow *relationaldb.UnitOfWork, out interface{}) error
+	Save(uow *relationaldb.UnitOfWork, out interface{}) error
+	Delete(uow *relationaldb.UnitOfWork, out interface{}, condition string) error
 }
 
 type GormRepository struct{}
@@ -23,13 +24,6 @@ func NewGormRepository() *GormRepository {
 // Repo Methods
 // filter
 // select
-
-func (repo *GormRepository) Filter(condition string, args ...interface{}) QueryProcessor {
-	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Debug().Where(condition, args...)
-		return db, nil
-	}
-}
 
 func (repo *GormRepository) Select(condition string, args ...interface{}) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
@@ -62,17 +56,21 @@ func (repo *GormRepository) GetFirst(uow *relationaldb.UnitOfWork, out interface
 	}
 
 	return db.Debug().First(out).Error
-
 }
 
 func (repo *GormRepository) Add(uow *relationaldb.UnitOfWork, out interface{}) error {
 	db := uow.DB
-	return db.Create(out).Debug().Error
+	return db.Create(out).Error
 }
 
 func (repo *GormRepository) Update(uow *relationaldb.UnitOfWork, out interface{}) error {
 	db := uow.DB
 	return db.Model(out).Update(out).Error
+}
+
+func (repo *GormRepository) Delete(uow *relationaldb.UnitOfWork, out interface{}, condition string) error {
+	db := uow.DB
+	return db.Delete(out, condition).Error
 }
 
 func (repo *GormRepository) Save(uow *relationaldb.UnitOfWork, out interface{}) error {
