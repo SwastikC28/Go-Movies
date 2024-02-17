@@ -4,8 +4,8 @@ import "github.com/jinzhu/gorm"
 
 type User struct {
 	gorm.Model
-	Name     string
-	Type     string
-	Email    string
-	Password string
+	Name     string `json:"name" gorm:"type:varchar(100)"`
+	IsAdmin  bool   `json:"isAdmin" gorm:"type:boolean;default:false"`
+	Email    string `json:"email" gorm:"type:varchar(100)"`
+	Password string `json:"password" gorm:"type:varchar(100);"`
 }
