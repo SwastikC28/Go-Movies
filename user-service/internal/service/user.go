@@ -70,7 +70,7 @@ func (service *UserService) GetUser(user *model.User, queryProcessor []datastore
 }
 
 func (service *UserService) DeleteUser(id string) error {
-	uow := relationaldb.NewUnitOfWork(service.db, true)
+	uow := relationaldb.NewUnitOfWork(service.db, false)
 
 	condition := fmt.Sprintf("ID = %s", id)
 

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"sync"
 	"time"
 	"user-service/internal/app"
 	"user-service/internal/config"
@@ -18,20 +20,23 @@ func main() {
 		panic("Failed to connect to DB")
 	}
 
-	userMS := config.NewApp("user-service", db, nil)
+	userMS := config.NewApp("user-service", db, &sync.WaitGroup{})
 
 	// Initialize User Microservice
 	userMS.Init()
 
 	// Register User Microservice
-	app.RegisterRoute(userMS)
+	app.RegisterRoutes(userMS)
 
 	// Migrate Table
 	app.TableMigration(userMS)
 
 	// Start Microservice
 	log.Println("User microservice started successfully.")
-	userMS.StartServer()
+	err := userMS.StartServer()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func connectDB() *gorm.DB {
