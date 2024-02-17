@@ -5,7 +5,6 @@ import (
 	"log"
 	"sync"
 	"time"
-	"user-service/internal/app"
 	"user-service/internal/config"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -14,6 +13,7 @@ import (
 
 func main() {
 	db := connectDB()
+	defer db.Close()
 
 	if db == nil {
 		log.Println("Failed to Connect to DB")
@@ -26,10 +26,10 @@ func main() {
 	userMS.Init()
 
 	// Register User Microservice
-	app.RegisterRoutes(userMS)
+	config.RegisterRoutes(userMS)
 
 	// Migrate Table
-	app.TableMigration(userMS)
+	config.TableMigration(userMS)
 
 	// Start Microservice
 	log.Println("User microservice started successfully.")
