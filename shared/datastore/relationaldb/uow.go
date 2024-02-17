@@ -9,17 +9,20 @@ type UnitOfWork struct {
 }
 
 func NewUnitOfWork(db *gorm.DB, readonly bool) *UnitOfWork {
-	uow := &UnitOfWork{
-		DB:        db,
-		Committed: false,
-		Readonly:  true,
+	commit := false
+	if readonly {
+		return &UnitOfWork{
+			DB:        db.New(),
+			Committed: commit,
+			Readonly:  readonly,
+		}
 	}
 
-	if !readonly {
-		uow.Readonly = false
+	return &UnitOfWork{
+		DB:        db.New().Begin(),
+		Committed: commit,
+		Readonly:  readonly,
 	}
-
-	return uow
 }
 
 func (uow *UnitOfWork) Commit() {
