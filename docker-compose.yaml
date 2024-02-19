@@ -13,6 +13,12 @@ services:
       MYSQL_DATABASE: go-movies
     volumes:
       - ./data/maria_data/:/var/lib/mysql
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
 
 volumes:
   data:
