@@ -18,7 +18,13 @@ services:
       context: ./user-service
       dockerfile: Dockerfile
     ports:
-      - "4000:4000"
+      - "4000:80"
+  movie-service:
+    build: 
+      context: ./movie-service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
 
 volumes:
   data:
