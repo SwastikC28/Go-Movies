@@ -40,7 +40,7 @@ func (app *App) InitializeRouter() {
 
 func (app *App) InitializeServer() {
 	app.Server = http.Server{
-		Addr:    "0.0.0.0:4000",
+		Addr:    "0.0.0.0:80",
 		Handler: app.Router,
 	}
 }
