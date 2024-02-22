@@ -6,6 +6,7 @@ import (
 	"movie-service/internal/service"
 	"net/http"
 	"shared/datastore"
+	"shared/middleware"
 	"shared/utils/web"
 
 	"github.com/gorilla/mux"
@@ -17,11 +18,14 @@ type MovieController struct {
 
 func (controller *MovieController) RegisterRoutes(router *mux.Router) {
 	fmt.Println("-----Movie Controller Registered-----")
-	MovieRouter := router.PathPrefix("/movie").Subrouter()
-	MovieRouter.HandleFunc("", controller.createMovie).Methods(http.MethodPost)
-	MovieRouter.HandleFunc("", controller.getMovies).Methods(http.MethodGet)
-	MovieRouter.HandleFunc("/{id}", controller.getMovieById).Methods(http.MethodGet)
-	MovieRouter.HandleFunc("/{id}", controller.deleteMovieById).Methods(http.MethodDelete)
+	movieRouter := router.PathPrefix("/movie").Subrouter()
+
+	movieRouter.Use(middleware.ReqLogger)
+
+	movieRouter.HandleFunc("", controller.createMovie).Methods(http.MethodPost)
+	movieRouter.HandleFunc("", controller.getMovies).Methods(http.MethodGet)
+	movieRouter.HandleFunc("/{id}", controller.getMovieById).Methods(http.MethodGet)
+	movieRouter.HandleFunc("/{id}", controller.deleteMovieById).Methods(http.MethodDelete)
 }
 
 func NewMovieController(service *service.MovieService) *MovieController {

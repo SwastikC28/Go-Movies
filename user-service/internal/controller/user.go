@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"shared/datastore"
+	"shared/middleware"
 	"shared/utils/web"
 	"user-service/internal/model"
 	"user-service/internal/service"
@@ -18,6 +19,9 @@ type UserController struct {
 func (controller *UserController) RegisterRoutes(router *mux.Router) {
 	fmt.Println("-----User Controller Registered-----")
 	userRouter := router.PathPrefix("/user").Subrouter()
+
+	userRouter.Use(middleware.ReqLogger)
+
 	userRouter.HandleFunc("", controller.createUser).Methods(http.MethodPost)
 	userRouter.HandleFunc("", controller.getUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id}", controller.getUserById).Methods(http.MethodGet)
