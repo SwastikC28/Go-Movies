@@ -13,5 +13,5 @@ type Movie struct {
 	Release_Date    *time.Time `json:"releaseDate"`
 	Director        string     `json:"director" gorm:"type:varchar(20);"`
 	Description     string     `json:"description" gorm:"type:varchar(100);"`
-	Inventory_Count string     `json:"inventoryCount" gorm:"type:int;"`
+	Inventory_Count uint       `json:"inventoryCount" gorm:"type:integer,default:0;"`
 }
