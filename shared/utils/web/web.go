@@ -23,6 +23,7 @@ func RespondJSON(w http.ResponseWriter, statusCode int, value interface{}) {
 	w.Write(body)
 }
 
+// Unmarshals Request's Body into out variable
 func UnmarshalJSON(r *http.Request, out interface{}) error {
 	// Check if request is empty
 	if r.Body == nil {
