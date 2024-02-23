@@ -36,11 +36,11 @@ func NewAuthController(service *service.AuthService) *AuthController {
 
 func (controller *AuthController) login(w http.ResponseWriter, r *http.Request) {
 	// User Info
-	var user model.User
+	var user = &model.User{}
 	web.UnmarshalJSON(r, &user)
 
 	// Match Passwords
-	err := controller.service.MatchPassword(&user)
+	err := controller.service.MatchPassword(user)
 	if err != nil {
 		web.RespondJSON(w, http.StatusUnauthorized, "Invalid Email or Password")
 		return
