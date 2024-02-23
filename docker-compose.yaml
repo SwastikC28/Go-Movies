@@ -2,7 +2,9 @@ version: '3'
 
 services:
   mariadb:
-    image: mariadb:latest
+    build:
+      context: ./mariadb
+      dockerfile: Dockerfile
     ports:
       - "3306:3306"
     environment:
@@ -39,5 +41,14 @@ services:
     depends_on:
       - mariadb
     restart: always
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    hostname: auth_app
+    depends_on:
+      - mariadb
+    ports:
+      - "8080:80"
     
 
