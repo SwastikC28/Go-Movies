@@ -1,4 +1,8 @@
 go 1.22.0
 
-use ./shared
-use ./user-service
+use (
+	./auth-service
+	./movie-service
+	./shared
+	./user-service
+)
