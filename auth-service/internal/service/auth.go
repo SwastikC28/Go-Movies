@@ -2,7 +2,6 @@ package service
 
 import (
 	"auth-service/internal/model"
-	"errors"
 	"shared/datastore"
 	"shared/datastore/relationaldb"
 	"shared/utils/web"
@@ -38,21 +37,9 @@ func (service *AuthService) Create(newUser *model.User) error {
 
 	newUser.Password = string(hashedPassword)
 
-	var existingUser model.User
-	err = service.repo.GetFirst(uow, &existingUser, []datastore.QueryProcessor{datastore.Filter("email = ?", newUser.Email)})
-	if err != nil {
-		return err
-	}
-
-	// If user exists
-	if existingUser.Email == newUser.Email {
-		return errors.New("user with the same email already exists")
-	}
-
 	// Add new user.
 	err = service.repo.Add(uow, newUser)
 	if err != nil {
-		uow.Rollback()
 		return err
 	}
 
