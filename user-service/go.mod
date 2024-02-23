@@ -10,7 +10,10 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 )
 
-require golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd // indirect
+require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd // indirect
+)
 
 require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
