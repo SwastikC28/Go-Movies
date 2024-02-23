@@ -79,7 +79,7 @@ func (controller *AuthController) register(w http.ResponseWriter, r *http.Reques
 
 	err := controller.service.Create(&user)
 	if err != nil {
-		web.RespondJSON(w, http.StatusUnauthorized, err)
+		web.RespondJSON(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
