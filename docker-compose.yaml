@@ -2,9 +2,7 @@ version: '3'
 
 services:
   mariadb:
-    build:
-      context: ./mariadb
-      dockerfile: Dockerfile
+    image: mariadb
     ports:
       - "3306:3306"
     environment:
