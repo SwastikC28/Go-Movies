@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"os"
@@ -72,5 +73,28 @@ func IsAdmin(h http.HandlerFunc) http.HandlerFunc {
 		}
 
 		h.ServeHTTP(w, r)
+	})
+}
+
+func AccessGuard(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		token := r.Header.Get("auth")
+		if len(token) == 0 {
+			web.RespondJSON(w, http.StatusUnauthorized, "User unauthorized to access this route")
+			return
+		}
+
+		// Verify Token
+		payload, err := Verify(token)
+		if err != nil {
+			web.RespondJSON(w, http.StatusUnauthorized, "Invalid Token")
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), UserIDKey, payload)
+		newReq := r.WithContext(ctx)
+
+		next.ServeHTTP(w, newReq)
 	})
 }
