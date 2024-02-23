@@ -51,9 +51,9 @@ func (service *AuthService) MatchPassword(userData *model.User) error {
 	uow := relationaldb.NewUnitOfWork(service.db, true)
 
 	// Get User Data
-	var user model.User
+	var user = &model.User{}
 
-	err := service.repo.GetFirst(uow, &user, []datastore.QueryProcessor{datastore.Filter("email = ?", userData.Email)})
+	err := service.repo.GetFirst(uow, user, []datastore.QueryProcessor{datastore.Filter("email = ?", userData.Email)})
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,8 @@ func (service *AuthService) MatchPassword(userData *model.User) error {
 		return err
 	}
 
-	userData = &user
+	userData.ID = user.ID
+	userData.Name = user.Name
 
 	return nil
 }
