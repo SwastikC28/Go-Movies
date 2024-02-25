@@ -57,12 +57,12 @@ func (service *MovieService) GetAllMovies(Movies *[]model.Movie) error {
 	return nil
 }
 
-func (service *MovieService) GetMovie(Movie *model.Movie, queryProcessor []datastore.QueryProcessor) error {
+func (service *MovieService) GetMovie(movie *model.Movie, queryProcessor []datastore.QueryProcessor) error {
 	uow := relationaldb.NewUnitOfWork(service.db, true)
 
 	defer uow.Rollback()
 
-	err := service.repo.GetFirst(uow, &Movie, queryProcessor)
+	err := service.repo.GetFirst(uow, &movie, queryProcessor)
 	if err != nil {
 		log.Println(err)
 		return err
