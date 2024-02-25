@@ -65,12 +65,13 @@ func (repo *GormRepository) Add(uow *relationaldb.UnitOfWork, out interface{}) e
 
 func (repo *GormRepository) Update(uow *relationaldb.UnitOfWork, out interface{}) error {
 	db := uow.DB
-	return db.Model(out).Update(out).Error
+	return db.Model(out).Update(out).Debug().Error
 }
 
 func (repo *GormRepository) Delete(uow *relationaldb.UnitOfWork, out interface{}, condition string) error {
 	db := uow.DB
-	return db.Delete(out, condition).Error
+
+	return db.Debug().Delete(out, condition).Error
 }
 
 func (repo *GormRepository) Save(uow *relationaldb.UnitOfWork, out interface{}) error {
