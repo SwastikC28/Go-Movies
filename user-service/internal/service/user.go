@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"shared/datastore"
 	"shared/datastore/relationaldb"
@@ -79,10 +78,41 @@ func (service *UserService) GetUser(user *model.User, queryProcessor []datastore
 func (service *UserService) DeleteUser(id string) error {
 	uow := relationaldb.NewUnitOfWork(service.db, false)
 
-	condition := fmt.Sprintf("ID = %s", id)
-
 	defer uow.Rollback()
-	err := service.repo.Delete(uow, &model.User{}, condition)
+
+	// Check if the user exists
+	user := model.User{}
+
+	err := service.repo.GetFirst(uow, &user, []datastore.QueryProcessor{datastore.Filter("id =?", uuid.FromStringOrNil(id))})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Delete User
+	err = service.repo.Delete(uow, &user, "")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	uow.Commit()
+	return nil
+}
+
+func (service *UserService) UpdateUser(user *model.User) error {
+	uow := relationaldb.NewUnitOfWork(service.db, false)
+	defer uow.Rollback()
+
+	// Check if the user exists
+	err := service.repo.GetFirst(uow, user, []datastore.QueryProcessor{datastore.Filter("id =?", user.ID)})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Update User
+	err = service.repo.Update(uow, &user)
 	if err != nil {
 		log.Println(err)
 		return err

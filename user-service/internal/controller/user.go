@@ -6,10 +6,12 @@ import (
 	"shared/datastore"
 	"shared/middleware"
 	"shared/pkg/web"
+	"shared/security"
 	"user-service/internal/model"
 	"user-service/internal/service"
 
 	"github.com/gorilla/mux"
+	uuid "github.com/satori/go.uuid"
 )
 
 type UserController struct {
@@ -25,7 +27,9 @@ func (controller *UserController) RegisterRoutes(router *mux.Router) {
 	userRouter.HandleFunc("", controller.createUser).Methods(http.MethodPost)
 	userRouter.HandleFunc("", controller.getUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id}", controller.getUserById).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{id}", controller.deleteUserById).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteUserById)).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateUser)).Methods(http.MethodPut)
+
 }
 
 func NewUserController(service *service.UserService) *UserController {
@@ -38,7 +42,16 @@ func (controller *UserController) createUser(w http.ResponseWriter, r *http.Requ
 	var user model.User
 	web.UnmarshalJSON(r, &user)
 
-	err := controller.service.Create(&user)
+	hashedPassword, err := web.EncryptPassword(user.Password)
+	if err != nil {
+		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	user.Password = string(hashedPassword)
+
+	// Create User
+	err = controller.service.Create(&user)
 	if err != nil {
 		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -90,4 +103,31 @@ func (controller *UserController) deleteUserById(w http.ResponseWriter, r *http.
 	}
 
 	web.RespondJSON(w, http.StatusOK, "User Deleted Successfully.")
+}
+
+func (controller *UserController) updateUser(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+	web.UnmarshalJSON(r, &user)
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+
+	user.ID = uuid.FromStringOrNil(id)
+
+	token := security.TokenFromContext(r.Context())
+
+	if token.ID.String() != id && !token.IsAdmin {
+		fmt.Println(token.ID.String())
+		fmt.Println(id)
+		web.RespondJSON(w, http.StatusUnauthorized, "User unauthorized to access this route")
+		return
+	}
+
+	err := controller.service.UpdateUser(&user)
+	if err != nil {
+		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	web.RespondJSON(w, http.StatusOK, "User Updated Successfully.")
 }
