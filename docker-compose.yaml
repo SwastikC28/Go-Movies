@@ -51,9 +51,4 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mariadb
-    hostname: rentai_app
-    
-    
-  
-    
-
+    hostname: rental_app
