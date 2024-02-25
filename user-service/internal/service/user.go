@@ -22,6 +22,10 @@ func NewUserService(db *gorm.DB, repo datastore.Repository) *UserService {
 	}
 }
 
+func (service *UserService) GetDB() *gorm.DB {
+	return service.db.New()
+}
+
 func (service *UserService) Create(newUser *model.User) error {
 	//  Creating unit of work.
 	uow := relationaldb.NewUnitOfWork(service.db, false)

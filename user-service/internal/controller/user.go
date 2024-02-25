@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"shared/datastore"
 	"shared/middleware"
-	"shared/utils/web"
+	"shared/pkg/web"
 	"user-service/internal/model"
 	"user-service/internal/service"
 
@@ -26,7 +26,6 @@ func (controller *UserController) RegisterRoutes(router *mux.Router) {
 	userRouter.HandleFunc("", controller.getUsers).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id}", controller.getUserById).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id}", controller.deleteUserById).Methods(http.MethodDelete)
-
 }
 
 func NewUserController(service *service.UserService) *UserController {
@@ -66,7 +65,6 @@ func (controller *UserController) getUserById(w http.ResponseWriter, r *http.Req
 	vars := mux.Vars(r)
 
 	id := vars["id"]
-	fmt.Println("ID", id)
 
 	queryProcessor := []datastore.QueryProcessor{}
 	queryProcessor = append(queryProcessor, datastore.Filter("ID = ?", (id)))

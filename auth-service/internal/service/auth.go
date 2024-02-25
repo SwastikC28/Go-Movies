@@ -4,7 +4,7 @@ import (
 	"auth-service/internal/model"
 	"shared/datastore"
 	"shared/datastore/relationaldb"
-	"shared/utils/web"
+	"shared/pkg/web"
 
 	"github.com/jinzhu/gorm"
 )

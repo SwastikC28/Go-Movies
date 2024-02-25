@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"shared/datastore"
 	"shared/middleware"
-	"shared/utils/web"
+	"shared/pkg/web"
 
 	"github.com/gorilla/mux"
 )

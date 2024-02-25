@@ -6,9 +6,10 @@ import (
 	"auth-service/internal/service"
 	"fmt"
 	"net/http"
-	"shared/auth"
+
 	"shared/middleware"
-	"shared/utils/web"
+	"shared/pkg/web"
+	"shared/security"
 
 	"github.com/gorilla/mux"
 )
@@ -47,14 +48,14 @@ func (controller *AuthController) login(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Get Token
-	userClaim := auth.Claims{
+	userClaim := security.JwtToken{
 		ID:      user.ID,
 		Name:    user.Name,
 		Email:   user.Email,
 		IsAdmin: user.IsAdmin,
 	}
 
-	token, err := auth.SignJWT(userClaim)
+	token, err := security.SignJWT(userClaim)
 
 	if err != nil {
 		web.RespondJSON(w, http.StatusInternalServerError, "error while creating the token")
@@ -84,14 +85,14 @@ func (controller *AuthController) register(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Get Token
-	userClaim := auth.Claims{
+	userClaim := security.JwtToken{
 		ID:      user.ID,
 		Name:    user.Name,
 		Email:   user.Email,
 		IsAdmin: user.IsAdmin,
 	}
 
-	token, err := auth.SignJWT(userClaim)
+	token, err := security.SignJWT(userClaim)
 
 	if err != nil {
 		web.RespondJSON(w, http.StatusInternalServerError, "error while creating the token")
