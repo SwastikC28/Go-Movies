@@ -11,6 +11,7 @@ import (
 	"shared/security"
 
 	"github.com/gorilla/mux"
+	uuid "github.com/satori/go.uuid"
 )
 
 type MovieController struct {
@@ -27,6 +28,7 @@ func (controller *MovieController) RegisterRoutes(router *mux.Router) {
 	movieRouter.HandleFunc("", controller.getMovies).Methods(http.MethodGet)
 	movieRouter.HandleFunc("/{id}", controller.getMovieById).Methods(http.MethodGet)
 	movieRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteMovieById)).Methods(http.MethodDelete)
+	movieRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateMovieById)).Methods(http.MethodPut)
 }
 
 func NewMovieController(service *service.MovieService) *MovieController {
@@ -95,6 +97,24 @@ func (controller *MovieController) deleteMovieById(w http.ResponseWriter, r *htt
 	id := vars["id"]
 
 	err := controller.service.DeleteMovie(id)
+	if err != nil {
+		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	web.RespondJSON(w, http.StatusOK, "Movie Deleted Successfully.")
+}
+
+func (controller *MovieController) updateMovieById(w http.ResponseWriter, r *http.Request) {
+	var movie model.Movie
+	web.UnmarshalJSON(r, &movie)
+
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+	movie.ID = uuid.FromStringOrNil(id)
+
+	err := controller.service.UpdateMovie(&movie)
 	if err != nil {
 		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return

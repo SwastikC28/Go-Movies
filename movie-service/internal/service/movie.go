@@ -87,3 +87,25 @@ func (service *MovieService) DeleteMovie(id string) error {
 	uow.Commit()
 	return nil
 }
+
+func (service *MovieService) UpdateMovie(movie *model.Movie) error {
+	uow := relationaldb.NewUnitOfWork(service.db, false)
+	defer uow.Rollback()
+
+	// Check if the movie exists
+	err := service.repo.GetFirst(uow, &model.Movie{}, []datastore.QueryProcessor{datastore.Filter("id = ?", movie.ID)})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Update Movie
+	err = service.repo.Update(uow, &movie)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	uow.Commit()
+	return nil
+}
