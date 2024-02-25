@@ -105,7 +105,7 @@ func (service *UserService) UpdateUser(user *model.User) error {
 	defer uow.Rollback()
 
 	// Check if the user exists
-	err := service.repo.GetFirst(uow, user, []datastore.QueryProcessor{datastore.Filter("id =?", user.ID)})
+	err := service.repo.GetFirst(uow, &model.User{}, []datastore.QueryProcessor{datastore.Filter("id =?", user.ID)})
 	if err != nil {
 		log.Println(err)
 		return err
