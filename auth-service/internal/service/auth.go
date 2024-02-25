@@ -67,6 +67,7 @@ func (service *AuthService) MatchPassword(userData *model.User) error {
 
 	userData.ID = user.ID
 	userData.Name = user.Name
+	userData.IsAdmin = user.IsAdmin
 
 	return nil
 }
