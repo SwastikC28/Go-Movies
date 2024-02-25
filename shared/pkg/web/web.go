@@ -64,7 +64,7 @@ func UnmarshalJSON(r *http.Request, out interface{}) error {
 func AccessGuard(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		token := r.Header.Get("auth")
+		token := r.Header.Get("Authorization")
 		if len(token) == 0 {
 			RespondJSON(w, http.StatusUnauthorized, "User unauthorized to access this route")
 			return
