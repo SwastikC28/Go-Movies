@@ -24,12 +24,11 @@ func (controller *UserController) RegisterRoutes(router *mux.Router) {
 
 	userRouter.Use(middleware.ReqLogger)
 
-	userRouter.HandleFunc("", controller.createUser).Methods(http.MethodPost)
-	userRouter.HandleFunc("", controller.getUsers).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{id}", controller.getUserById).Methods(http.MethodGet)
+	userRouter.HandleFunc("", web.AccessGuard(controller.createUser)).Methods(http.MethodPost)
+	userRouter.HandleFunc("", web.AccessGuard(controller.getUsers)).Methods(http.MethodGet)
+	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.getUserById)).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteUserById)).Methods(http.MethodDelete)
 	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateUser)).Methods(http.MethodPut)
-
 }
 
 func NewUserController(service *service.UserService) *UserController {
@@ -117,8 +116,6 @@ func (controller *UserController) updateUser(w http.ResponseWriter, r *http.Requ
 	token := security.TokenFromContext(r.Context())
 
 	if token.ID.String() != id && !token.IsAdmin {
-		fmt.Println(token.ID.String())
-		fmt.Println(id)
 		web.RespondJSON(w, http.StatusUnauthorized, "User unauthorized to access this route")
 		return
 	}
