@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	uuid "github.com/satori/go.uuid"
 )
 
 type JwtToken struct {
-	ID      uint
+	ID      uuid.UUID
 	Name    string
 	Email   string
 	IsAdmin bool

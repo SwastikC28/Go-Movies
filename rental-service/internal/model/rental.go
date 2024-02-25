@@ -1,7 +1,7 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import "shared/pkg/model"
 
 type Rental struct {
-	gorm.Model
+	model.Base
 }

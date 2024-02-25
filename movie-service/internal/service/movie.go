@@ -8,6 +8,7 @@ import (
 	"shared/datastore/relationaldb"
 
 	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 )
 
 type MovieService struct {
@@ -27,6 +28,8 @@ func (service *MovieService) Create(newMovie *model.Movie) error {
 	uow := relationaldb.NewUnitOfWork(service.db, false)
 
 	defer uow.Rollback()
+
+	newMovie.ID = uuid.NewV4()
 
 	// Add newMovie.
 	err := service.repo.Add(uow, newMovie)

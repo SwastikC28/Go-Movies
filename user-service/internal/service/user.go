@@ -8,6 +8,7 @@ import (
 	"user-service/internal/model"
 
 	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 )
 
 type UserService struct {
@@ -32,6 +33,8 @@ func (service *UserService) Create(newUser *model.User) error {
 
 	defer uow.Rollback()
 
+	// New ID
+	newUser.ID = uuid.NewV4()
 	// Add newUser.
 	err := service.repo.Add(uow, newUser)
 	if err != nil {

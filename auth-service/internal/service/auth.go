@@ -7,6 +7,7 @@ import (
 	"shared/pkg/web"
 
 	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 )
 
 type AuthService struct {
@@ -25,7 +26,8 @@ func (service *AuthService) Create(newUser *model.User) error {
 	//  Creating unit of work.
 	uow := relationaldb.NewUnitOfWork(service.db, false)
 
-	// Get User if exist throw error
+	// Assign New ID
+	newUser.ID = uuid.NewV4()
 
 	defer uow.Rollback()
 

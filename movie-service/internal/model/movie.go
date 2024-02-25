@@ -1,13 +1,12 @@
 package model
 
 import (
+	"shared/pkg/model"
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 type Movie struct {
-	gorm.Model
+	model.Base
 	Title           string     `json:"name" gorm:"type:varchar(100)"`
 	Genre           string     `json:"genre" gorm:"type:varchar(10)"`
 	Release_Date    *time.Time `json:"releaseDate"`
