@@ -17,21 +17,21 @@ type Controller interface {
 	RegisterRoute(router *mux.Router)
 }
 
-func RegisterMovieRoutes(app *App) {
+func RegisterRentalRoutes(app *App) {
 	defer app.WG.Done()
 
-	rentalService := service.NewRentalService(app.DB, &repository.MovieRepository{
+	rentalService := service.NewRentalService(app.DB, &repository.RentalRepository{
 		GormRepository: *datastore.NewGormRepository(),
 	})
 
-	movieController := controller.NewRentalController(rentalService)
+	rentalController := controller.NewRentalController(rentalService)
 
-	movieController.RegisterRoutes(app.Router)
+	rentalController.RegisterRoutes(app.Router)
 }
 
 func TableMigration(app *App) {
 	fmt.Println("-----Movie Table Migration-----")
-	err := app.DB.AutoMigrate(&model.Movie{}).Error
+	err := app.DB.AutoMigrate(&model.Rental{}).Error
 	if err != nil {
 		log.Println(err)
 	}
@@ -40,7 +40,7 @@ func TableMigration(app *App) {
 func RegisterRoutes(app *App) {
 	app.WG.Add(1)
 
-	go RegisterMovieRoutes(app)
+	go RegisterRentalRoutes(app)
 
 	app.WG.Wait()
 }
