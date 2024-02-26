@@ -21,6 +21,8 @@ type Rental struct {
 	ReturnDate *time.Time         `json:"returnDate"`
 	Status     AvailabilityStatus `json:"status" gorm:"default:'unpaid'"`
 	LateFee    uint               `json:"lateFee"`
-	MovieId    uuid.UUID          `json:"movieId" gorm:"type:varchar(36);foreignKey"`
+	MovieId    uuid.UUID          `json:"movieId" gorm:"type:varchar(36)"`
+	Movie      Movie              `gorm:"foreignKey:MovieId"`
 	UserId     uuid.UUID          `json:"userId" gorm:"type:varchar(36);foreignKey"`
+	User       User               `gorm:"foreignKey:UserId"`
 }
