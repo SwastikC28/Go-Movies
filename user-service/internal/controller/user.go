@@ -24,11 +24,11 @@ func (controller *UserController) RegisterRoutes(router *mux.Router) {
 
 	userRouter.Use(middleware.ReqLogger)
 
-	userRouter.HandleFunc("", web.AccessGuard(controller.createUser)).Methods(http.MethodPost)
-	userRouter.HandleFunc("", web.AccessGuard(controller.getUsers)).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.getUserById)).Methods(http.MethodGet)
-	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteUserById)).Methods(http.MethodDelete)
-	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateUser)).Methods(http.MethodPut)
+	userRouter.HandleFunc("", web.AccessGuard(controller.createUser, true)).Methods(http.MethodPost)
+	userRouter.HandleFunc("", web.AccessGuard(controller.getUsers, true)).Methods(http.MethodGet)
+	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.getUserById, false)).Methods(http.MethodGet)
+	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteUserById, false)).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateUser, false)).Methods(http.MethodPut)
 }
 
 func NewUserController(service *service.UserService) *UserController {

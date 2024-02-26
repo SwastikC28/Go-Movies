@@ -24,11 +24,11 @@ func (controller *MovieController) RegisterRoutes(router *mux.Router) {
 
 	movieRouter.Use(middleware.ReqLogger)
 
-	movieRouter.HandleFunc("", web.AccessGuard(controller.createMovie)).Methods(http.MethodPost)
+	movieRouter.HandleFunc("", web.AccessGuard(controller.createMovie, true)).Methods(http.MethodPost)
 	movieRouter.HandleFunc("", controller.getMovies).Methods(http.MethodGet)
 	movieRouter.HandleFunc("/{id}", controller.getMovieById).Methods(http.MethodGet)
-	movieRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteMovieById)).Methods(http.MethodDelete)
-	movieRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateMovieById)).Methods(http.MethodPut)
+	movieRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteMovieById, true)).Methods(http.MethodDelete)
+	movieRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateMovieById, true)).Methods(http.MethodPut)
 }
 
 func NewMovieController(service *service.MovieService) *MovieController {

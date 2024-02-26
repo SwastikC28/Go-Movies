@@ -25,11 +25,11 @@ func (controller *RentalController) RegisterRoutes(router *mux.Router) {
 
 	rentalRouter.Use(middleware.ReqLogger)
 
-	rentalRouter.HandleFunc("/{movieId}/{userId}", web.AccessGuard(controller.createRental)).Methods(http.MethodPost)
-	rentalRouter.HandleFunc("", web.AccessGuard(controller.getRentals)).Methods(http.MethodGet)
-	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.getRentalById)).Methods(http.MethodGet)
-	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteRentalById)).Methods(http.MethodDelete)
-	rentalRouter.HandleFunc("/myrentals", web.AccessGuard(controller.getMyRentals)).Methods(http.MethodGet)
+	rentalRouter.HandleFunc("/{movieId}/{userId}", web.AccessGuard(controller.createRental, false)).Methods(http.MethodPost)
+	rentalRouter.HandleFunc("", web.AccessGuard(controller.getRentals, true)).Methods(http.MethodGet)
+	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.getRentalById, false)).Methods(http.MethodGet)
+	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteRentalById, true)).Methods(http.MethodDelete)
+	rentalRouter.HandleFunc("/myrentals", web.AccessGuard(controller.getMyRentals, false)).Methods(http.MethodGet)
 }
 
 func NewRentalController(service *service.RentalService) *RentalController {

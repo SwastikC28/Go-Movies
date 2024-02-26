@@ -46,22 +46,8 @@ func UnmarshalJSON(r *http.Request, out interface{}) error {
 	return nil
 }
 
-// func IsAdmin(h http.HandlerFunc) http.HandlerFunc {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		w.Header().Add("Content-Type", "application/json")
 
-// 		user := r.Context().Value(UserIDKey).(*Claims)
-
-// 		if !user.IsAdmin {
-// 			web.RespondJSON(w, http.StatusUnauthorized, "User Unauthorized to access this Route")
-// 			return
-// 		}
-
-// 		h.ServeHTTP(w, r)
-// 	})
-// }
-
-func AccessGuard(next http.HandlerFunc) http.HandlerFunc {
+func AccessGuard(next http.HandlerFunc, isAdmin bool) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		token := r.Header.Get("Authorization")
@@ -74,6 +60,12 @@ func AccessGuard(next http.HandlerFunc) http.HandlerFunc {
 		payload, err := security.Verify(token)
 		if err != nil {
 			RespondJSON(w, http.StatusUnauthorized, "Invalid Token")
+			return
+		}
+
+		// Check if admin is required
+		if isAdmin && !payload.IsAdmin {
+			RespondJSON(w, http.StatusUnauthorized, "User unauthorized to access this route")
 			return
 		}
 

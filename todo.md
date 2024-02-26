@@ -1,7 +1,11 @@
 > Auth Service DONE
 
-> User Update
+> Update API for every service
 
-> Access Guard
+> Access Guard (isAdmin remaining)
 
-> Validation
+> Validation 
+
+> Rental Service
+
+> Preload 
