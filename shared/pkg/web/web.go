@@ -3,9 +3,11 @@ package web
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"shared/security"
+	"strings"
 )
 
 func RespondJSON(w http.ResponseWriter, statusCode int, value interface{}) {
@@ -46,7 +48,6 @@ func UnmarshalJSON(r *http.Request, out interface{}) error {
 	return nil
 }
 
-
 func AccessGuard(next http.HandlerFunc, isAdmin bool) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -56,9 +57,15 @@ func AccessGuard(next http.HandlerFunc, isAdmin bool) http.HandlerFunc {
 			return
 		}
 
+		// Extract Token from Authorization Header
+		token = strings.Split(token, " ")[1]
+
+		fmt.Println("TOKEN:", token)
+
 		// Verify Token
 		payload, err := security.Verify(token)
 		if err != nil {
+			fmt.Println(err)
 			RespondJSON(w, http.StatusUnauthorized, "Invalid Token")
 			return
 		}
