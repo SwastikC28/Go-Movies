@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"movie-service/internal/model"
 	"shared/datastore"
@@ -74,11 +73,19 @@ func (service *MovieService) GetMovie(movie *model.Movie, queryProcessor []datas
 
 func (service *MovieService) DeleteMovie(id string) error {
 	uow := relationaldb.NewUnitOfWork(service.db, false)
-
-	condition := fmt.Sprintf("ID = %s", id)
-
 	defer uow.Rollback()
-	err := service.repo.Delete(uow, &model.Movie{}, condition)
+
+	movie := model.Movie{}
+	movie.ID = uuid.FromStringOrNil(id)
+
+	// Check if the movie exists
+	err := service.repo.GetFirst(uow, &model.Movie{}, []datastore.QueryProcessor{datastore.Filter("id = ?", movie.ID)})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	err = service.repo.Delete(uow, movie, "")
 	if err != nil {
 		log.Println(err)
 		return err
