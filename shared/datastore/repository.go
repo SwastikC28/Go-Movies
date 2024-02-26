@@ -21,10 +21,6 @@ func NewGormRepository() *GormRepository {
 	return &GormRepository{}
 }
 
-// Repo Methods
-// filter
-// select
-
 func (repo *GormRepository) Select(condition string, args ...interface{}) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		db = db.Select(condition, args...)

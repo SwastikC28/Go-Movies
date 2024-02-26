@@ -17,3 +17,13 @@ func OrderBy(condition string) QueryProcessor {
 		return db, nil
 	}
 }
+
+func Preload(associations []string) QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		for _, association := range associations {
+			db = db.Debug().Preload(association)
+		}
+
+		return db, nil
+	}
+}
