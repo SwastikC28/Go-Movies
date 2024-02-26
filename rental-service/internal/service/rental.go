@@ -8,6 +8,7 @@ import (
 	"shared/datastore/relationaldb"
 
 	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 )
 
 type RentalService struct {
@@ -29,9 +30,10 @@ func (service *RentalService) Create(newRental *model.Rental) error {
 	defer uow.Rollback()
 
 	// Add newRental.
+	newRental.ID = uuid.NewV4()
+
 	err := service.repo.Add(uow, newRental)
 	if err != nil {
-		uow.Rollback()
 		return err
 	}
 
@@ -39,12 +41,11 @@ func (service *RentalService) Create(newRental *model.Rental) error {
 	return nil
 }
 
-func (service *RentalService) GetAllRentals(Rentals *[]model.Rental) error {
+func (service *RentalService) GetAllRentals(rentals *[]model.Rental, queryProcessors []datastore.QueryProcessor) error {
 	uow := relationaldb.NewUnitOfWork(service.db, true)
-
 	defer uow.Rollback()
 
-	err := service.repo.GetAllRecords(uow, Rentals, nil)
+	err := service.repo.GetAllRecords(uow, rentals, queryProcessors)
 	if err != nil {
 		log.Println(err)
 		return err
