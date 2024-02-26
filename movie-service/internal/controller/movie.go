@@ -120,5 +120,5 @@ func (controller *MovieController) updateMovieById(w http.ResponseWriter, r *htt
 		return
 	}
 
-	web.RespondJSON(w, http.StatusOK, "Movie Deleted Successfully.")
+	web.RespondJSON(w, http.StatusOK, "Movie Updated Successfully.")
 }
