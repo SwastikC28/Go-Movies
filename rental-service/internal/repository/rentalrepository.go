@@ -4,6 +4,6 @@ import (
 	"shared/datastore"
 )
 
-type MovieRepository struct {
+type RentalRepository struct {
 	datastore.GormRepository
 }
