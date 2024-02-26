@@ -35,6 +35,12 @@ func TableMigration(app *App) {
 	if err != nil {
 		log.Println(err)
 	}
+
+	if err := app.DB.Model(&model.Rental{}).
+		AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").
+		AddForeignKey("movie_id", "movies(id)", "RESTRICT", "RESTRICT"); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func RegisterRoutes(app *App) {
