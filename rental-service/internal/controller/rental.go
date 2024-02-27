@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -25,9 +26,9 @@ func (controller *RentalController) RegisterRoutes(router *mux.Router) {
 
 	rentalRouter.Use(middleware.ReqLogger)
 
-	rentalRouter.HandleFunc("/myrentals", web.AccessGuard(controller.getMyRentals, true)).Methods(http.MethodGet)
+	rentalRouter.HandleFunc("/myrentals", web.AccessGuard(controller.getMyRentals, false)).Methods(http.MethodGet)
 	rentalRouter.HandleFunc("/{movieId}/{userId}", web.AccessGuard(controller.createRental, false)).Methods(http.MethodPost)
-	rentalRouter.HandleFunc("", controller.getRentals).Methods(http.MethodGet)
+	rentalRouter.HandleFunc("", web.AccessGuard(controller.getRentals, true)).Methods(http.MethodGet)
 	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.getRentalById, false)).Methods(http.MethodGet)
 	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteRentalById, true)).Methods(http.MethodDelete)
 }
@@ -52,8 +53,19 @@ func (controller *RentalController) createRental(w http.ResponseWriter, r *http.
 	rental.UserId = uuid.FromStringOrNil(userId)
 	rental.MovieId = uuid.FromStringOrNil(movieId)
 
+	token := security.TokenFromContext(r.Context())
+
+	if token.ID.String() != userId && !token.IsAdmin {
+		web.RespondJSON(w, http.StatusUnauthorized, "user unauthorized to access this route")
+		return
+	}
+
 	err := controller.service.Create(&rental)
 	if err != nil {
+		if err.Error() == gorm.ErrRecordNotFound.Error() {
+			web.RespondJSON(w, http.StatusNotFound, err.Error())
+			return
+		}
 		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
