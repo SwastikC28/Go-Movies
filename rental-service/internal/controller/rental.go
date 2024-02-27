@@ -25,11 +25,11 @@ func (controller *RentalController) RegisterRoutes(router *mux.Router) {
 
 	rentalRouter.Use(middleware.ReqLogger)
 
+	rentalRouter.HandleFunc("/myrentals", web.AccessGuard(controller.getMyRentals, true)).Methods(http.MethodGet)
 	rentalRouter.HandleFunc("/{movieId}/{userId}", web.AccessGuard(controller.createRental, false)).Methods(http.MethodPost)
-	rentalRouter.HandleFunc("", web.AccessGuard(controller.getRentals, true)).Methods(http.MethodGet)
+	rentalRouter.HandleFunc("", controller.getRentals).Methods(http.MethodGet)
 	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.getRentalById, false)).Methods(http.MethodGet)
 	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteRentalById, true)).Methods(http.MethodDelete)
-	rentalRouter.HandleFunc("/myrentals", web.AccessGuard(controller.getMyRentals, false)).Methods(http.MethodGet)
 }
 
 func NewRentalController(service *service.RentalService) *RentalController {
@@ -64,7 +64,10 @@ func (controller *RentalController) createRental(w http.ResponseWriter, r *http.
 func (controller *RentalController) getRentals(w http.ResponseWriter, r *http.Request) {
 	var rentals []model.Rental
 
-	err := controller.service.GetAllRentals(&rentals, nil)
+	// Get all associations
+	matchedAssociations := web.ParseAssociation(r)
+
+	err := controller.service.GetAllRentals(&rentals, matchedAssociations, nil)
 	if err != nil {
 		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
@@ -97,10 +100,13 @@ func (controller *RentalController) getMyRentals(w http.ResponseWriter, r *http.
 
 	token := security.TokenFromContext(r.Context())
 
+	// Get all associations
+	includes := web.ParseAssociation(r)
+
 	queryProcessor := []datastore.QueryProcessor{}
 	queryProcessor = append(queryProcessor, datastore.Filter("user_id = ?", (token.ID)))
 
-	err := controller.service.GetAllRentals(&rentals, queryProcessor)
+	err := controller.service.GetAllRentals(&rentals, includes, queryProcessor)
 	if err != nil {
 		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
