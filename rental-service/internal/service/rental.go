@@ -6,6 +6,7 @@ import (
 	"rental-service/internal/model"
 	"shared/datastore"
 	"shared/datastore/relationaldb"
+	"shared/pkg/web"
 
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
@@ -14,12 +15,15 @@ import (
 type RentalService struct {
 	db   *gorm.DB
 	repo datastore.Repository
+	gorm.Association
+	associations []string
 }
 
 func NewRentalService(db *gorm.DB, repo datastore.Repository) *RentalService {
 	return &RentalService{
-		db:   db,
-		repo: repo,
+		db:           db,
+		repo:         repo,
+		associations: []string{"User", "Movie"},
 	}
 }
 
@@ -41,9 +45,15 @@ func (service *RentalService) Create(newRental *model.Rental) error {
 	return nil
 }
 
-func (service *RentalService) GetAllRentals(rentals *[]model.Rental, queryProcessors []datastore.QueryProcessor) error {
+func (service *RentalService) GetAllRentals(rentals *[]model.Rental, includes []string, queryProcessors []datastore.QueryProcessor) error {
 	uow := relationaldb.NewUnitOfWork(service.db, true)
 	defer uow.Rollback()
+
+	// Get matched associations
+	includes = web.GetMatchedAssociations(includes, service.associations)
+
+	// Append Preload QueryProcessor
+	queryProcessors = append(queryProcessors, datastore.Preload(includes))
 
 	err := service.repo.GetAllRecords(uow, rentals, queryProcessors)
 	if err != nil {
