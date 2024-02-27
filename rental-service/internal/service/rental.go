@@ -30,16 +30,31 @@ func NewRentalService(db *gorm.DB, repo datastore.Repository) *RentalService {
 func (service *RentalService) Create(newRental *model.Rental) error {
 	//  Creating unit of work.
 	uow := relationaldb.NewUnitOfWork(service.db, false)
-
 	defer uow.Rollback()
+
+	// Check if movie inventory is greater than 0
+	var movie model.Movie
+	movie.ID = newRental.MovieId
+	err := service.GetMovie(&movie)
+	if err != nil {
+		return gorm.ErrRecordNotFound
+	}
+
+	if movie.Inventory_Count <= 0 {
+		return gorm.ErrRecordNotFound
+	}
 
 	// Add newRental.
 	newRental.ID = uuid.NewV4()
 
-	err := service.repo.Add(uow, newRental)
+	err = service.repo.Add(uow, newRental)
 	if err != nil {
 		return err
 	}
+
+	// Decrement movie count & save
+	movie.Inventory_Count = movie.Inventory_Count - 1
+	service.repo.Save(uow, movie)
 
 	uow.Commit()
 	return nil
@@ -93,5 +108,21 @@ func (service *RentalService) DeleteRental(id string) error {
 	}
 
 	uow.Commit()
+	return nil
+}
+
+func (service *RentalService) GetMovie(movie *model.Movie) error {
+	uow := relationaldb.NewUnitOfWork(service.db, true)
+	defer uow.Rollback()
+
+	queryProcessor := []datastore.QueryProcessor{}
+	queryProcessor = append(queryProcessor, datastore.Filter("id= ?", movie.ID))
+
+	err := service.repo.GetFirst(uow, movie, queryProcessor)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
