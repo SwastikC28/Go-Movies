@@ -27,6 +27,7 @@ func (controller *RentalController) RegisterRoutes(router *mux.Router) {
 	rentalRouter.Use(middleware.ReqLogger)
 
 	rentalRouter.HandleFunc("/myrentals", web.AccessGuard(controller.getMyRentals, false)).Methods(http.MethodGet)
+	rentalRouter.HandleFunc("/{userId}/{id}/return", web.AccessGuard(controller.returnMovie, false)).Methods(http.MethodPut)
 	rentalRouter.HandleFunc("/{movieId}/{userId}", web.AccessGuard(controller.createRental, false)).Methods(http.MethodPost)
 	rentalRouter.HandleFunc("", web.AccessGuard(controller.getRentals, true)).Methods(http.MethodGet)
 	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.getRentalById, false)).Methods(http.MethodGet)
@@ -139,4 +140,26 @@ func (controller *RentalController) deleteRentalById(w http.ResponseWriter, r *h
 	}
 
 	web.RespondJSON(w, http.StatusOK, "Rental Deleted Successfully.")
+}
+
+func (controller *RentalController) returnMovie(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+	userId := vars["userId"]
+
+	token := security.TokenFromContext(r.Context())
+
+	if token.ID.String() == userId {
+		web.RespondJSON(w, http.StatusUnauthorized, "user unauthorized to access this route")
+		return
+	}
+
+	err := controller.service.ReturnMovie(id)
+	if err != nil {
+		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	web.RespondJSON(w, http.StatusOK, "Movie Returned Successfully.")
 }

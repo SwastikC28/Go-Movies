@@ -7,6 +7,7 @@ import (
 	"shared/datastore"
 	"shared/datastore/relationaldb"
 	"shared/pkg/web"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
@@ -57,6 +58,58 @@ func (service *RentalService) Create(newRental *model.Rental) error {
 	service.repo.Save(uow, movie)
 
 	uow.Commit()
+	return nil
+}
+
+func (service *RentalService) ReturnMovie(id string) error {
+	uow := relationaldb.NewUnitOfWork(service.db, true)
+
+	var rental model.Rental
+
+	// Get Rental Information
+	err := service.repo.GetAllRecords(uow, &rental, []datastore.QueryProcessor{datastore.Filter("id = ?", uuid.FromStringOrNil(id))})
+	if err != nil {
+		return err
+	}
+
+	// Calculate Rental Fees
+	rentalFees := 10.0
+	rentalFees = time.Since(rental.CreatedAt).Hours() * 1.5
+
+	// Update Return Date
+	currTime := time.Now()
+	rental.ReturnDate = &currTime
+
+	// Check for Dues
+	dueFees := 0.0
+	if cur := time.Since(rental.DueDate).Abs().Hours(); cur > 24.0 {
+		dueFees = 0.5 * cur
+	}
+
+	// Update Rental Fees
+	rental.RentalFee = rentalFees + dueFees
+
+	// Get Movie
+	var movie model.Movie
+	err = service.repo.GetAllRecords(uow, &movie, []datastore.QueryProcessor{datastore.Filter("id = ?", rental.MovieId)})
+	if err != nil {
+		return err
+	}
+
+	// Increment Inventory
+	movie.Inventory_Count++
+
+	// Save all changes
+	err = service.repo.Save(uow, &movie)
+	if err != nil {
+		return err
+	}
+
+	err = service.repo.Save(uow, &rental)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
