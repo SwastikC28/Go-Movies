@@ -15,7 +15,7 @@ func ReqLogger(next http.Handler) http.Handler {
 			// request context, performing authentication
 
 			// Print Req URL
-			log.Println("REQ - ", r.URL)
+			log.Println("REQ - ", r.Method, r.URL)
 
 			// Important that we call the 'next' handler in the chain. If we don't,
 			// then request handling will stop here.
