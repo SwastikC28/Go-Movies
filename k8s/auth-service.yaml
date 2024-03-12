@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  auth-service
+  labels:
+    app:  auth-service
+spec:
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - image:  swastikc28/auth-service
+        name:  auth-service
+        resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"  
+        ports:
+        - containerPort:  80
+          name:  main-port
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      volumes:
+        - name: data
+          emptyDir: {}
+      restartPolicy: Always
+      # imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  auth-service
+spec:
+  selector:
+    app:  auth-service
+  type:  ClusterIP
+  ports:
+  - name:  main-port
+    port:  80
+    protocol: TCP

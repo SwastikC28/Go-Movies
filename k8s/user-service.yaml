@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  user-service
+  labels:
+    app:  user-service
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app:  user-service
+    spec:
+      containers:
+      - image:  swastikc28/user-service
+        name:  user-service
+        resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"  
+        ports:
+        - containerPort:  80
+          name:  my-name
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      volumes:
+        - name: data
+          emptyDir: {}
+      restartPolicy: Always
+      # imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  user-service
+spec:
+  selector:
+    app:  user-service
+  type:  ClusterIP
+  ports:
+  - name:  main-port
+    port:  80
+    protocol: TCP

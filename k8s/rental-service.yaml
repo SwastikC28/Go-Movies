@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  rental-service
+  labels:
+    app:  rental-service
+spec:
+  selector:
+    matchLabels:
+      app: rental-service
+  template:
+    metadata:
+      labels:
+        app: rental-service
+    spec:
+      containers:
+      - image:  swastikc28/rental-service
+        name:  rental-service
+        resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"  
+        ports:
+        - containerPort:  80
+          name:  main-port
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      volumes:
+        - name: data
+          emptyDir: {}
+      restartPolicy: Always
+      # imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  rental-service
+spec:
+  selector:
+    app:  rental-service
+  type:  ClusterIP
+  ports:
+  - name:  main-port
+    port:  80
+    protocol: TCP
