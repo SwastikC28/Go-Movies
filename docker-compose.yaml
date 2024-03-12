@@ -37,6 +37,8 @@ services:
     depends_on:
       - mariadb
     restart: always
+    env_file:
+      - ./data/config/.env
   auth-service:
     build:
       context: ./auth-service
