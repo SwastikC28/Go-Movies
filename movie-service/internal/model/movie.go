@@ -16,4 +16,5 @@ type Movie struct {
 	Description     string     `json:"description" gorm:"type:varchar(100);"`
 	Inventory_Count uint       `json:"inventoryCount" gorm:"type:integer;default:0;"`
 	CreatedBy       uuid.UUID  `json:"createdBy" gorm:"type:varchar(36);foreignKey"`
+	ImageUrl        string     `json:"imageUrl"`
 }
