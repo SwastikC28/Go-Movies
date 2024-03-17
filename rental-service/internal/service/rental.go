@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log"
+	"math"
 	"rental-service/internal/model"
 	"shared/datastore"
 	"shared/datastore/relationaldb"
@@ -73,21 +74,22 @@ func (service *RentalService) ReturnMovie(id string) error {
 	}
 
 	// Calculate Rental Fees
-	rentalFees := 10.0
-	rentalFees = time.Since(rental.CreatedAt).Hours() * 1.5
+	rentalFees := 10
+	rentalFees = int(math.Round(time.Since(rental.CreatedAt).Hours() * 2))
 
 	// Update Return Date
 	currTime := time.Now()
 	rental.ReturnDate = &currTime
 
 	// Check for Dues
-	dueFees := 0.0
-	if cur := time.Since(rental.DueDate).Abs().Hours(); cur > 24.0 {
-		dueFees = 0.5 * cur
+	dueFees := 0
+	if cur := int(math.Round(time.Since(rental.DueDate).Abs().Hours())); cur > 24.0 {
+		dueFees = cur / 2
 	}
 
 	// Update Rental Fees
 	rental.RentalFee = rentalFees + dueFees
+	rental.Status = "paid"
 
 	// Get Movie
 	var movie model.Movie
