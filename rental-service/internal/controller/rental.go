@@ -150,7 +150,7 @@ func (controller *RentalController) returnMovie(w http.ResponseWriter, r *http.R
 
 	token := security.TokenFromContext(r.Context())
 
-	if token.ID.String() == userId {
+	if token.ID.String() != userId {
 		web.RespondJSON(w, http.StatusUnauthorized, "user unauthorized to access this route")
 		return
 	}
