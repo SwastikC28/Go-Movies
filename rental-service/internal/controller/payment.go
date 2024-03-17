@@ -29,7 +29,6 @@ func (controller *PaymentController) RegisterRoutes(router *mux.Router) {
 
 	paymentRouter.HandleFunc("/verify", controller.VerifyPayment).Methods(http.MethodPost)
 	paymentRouter.HandleFunc("/{rentalId}", controller.CreateOrder).Methods(http.MethodPost)
-
 }
 
 func NewPaymentController(service *service.PaymentService) *PaymentController {
@@ -49,6 +48,11 @@ func (controller *PaymentController) CreateOrder(w http.ResponseWriter, r *http.
 	err := controller.service.GetRentalFees(&rental)
 	if err != nil {
 		web.RespondJSON(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	if rental.Status == "paid" {
+		web.RespondJSON(w, http.StatusUnauthorized, "rental fees already paid.")
 		return
 	}
 
