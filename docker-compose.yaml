@@ -54,3 +54,9 @@ services:
     depends_on:
       - mariadb
     hostname: rental_app
+    env_file:
+      - ./data/config/.env
+
+    
+
+      
