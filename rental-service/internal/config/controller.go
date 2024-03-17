@@ -29,9 +29,32 @@ func RegisterRentalRoutes(app *App) {
 	rentalController.RegisterRoutes(app.Router)
 }
 
+func RegisterPaymentRoutes(app *App) {
+	defer app.WG.Done()
+
+	paymentService := service.NewPaymentService(app.DB, &repository.RentalRepository{
+		GormRepository: *datastore.NewGormRepository(),
+	})
+
+	paymentController := controller.NewPaymentController(paymentService)
+
+	paymentController.RegisterRoutes(app.Router)
+}
+
 func TableMigration(app *App) {
-	fmt.Println("-----Movie Table Migration-----")
+	fmt.Println("-----Rental MS Tables Migration-----")
+
 	err := app.DB.AutoMigrate(&model.Rental{}).Error
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = app.DB.AutoMigrate(&model.Order{}).Error
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = app.DB.AutoMigrate(&model.Payment{}).Error
 	if err != nil {
 		log.Println(err)
 	}
@@ -44,9 +67,10 @@ func TableMigration(app *App) {
 }
 
 func RegisterRoutes(app *App) {
-	app.WG.Add(1)
+	app.WG.Add(2)
 
 	go RegisterRentalRoutes(app)
+	go RegisterPaymentRoutes(app)
 
 	app.WG.Wait()
 }
