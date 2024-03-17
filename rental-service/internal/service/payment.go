@@ -65,6 +65,10 @@ func (service *PaymentService) SavePayment(payment model.Payment) error {
 		return err
 	}
 
+	if rental.Status == "paid" {
+		return errors.New("rental fees already paid")
+	}
+
 	// Update Status to Paid
 	rental.Status = "paid"
 	err = service.repo.Save(uow, &rental)
