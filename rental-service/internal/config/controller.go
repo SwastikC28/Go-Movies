@@ -32,7 +32,7 @@ func RegisterRentalRoutes(app *App) {
 func RegisterPaymentRoutes(app *App) {
 	defer app.WG.Done()
 
-	paymentService := service.NewPaymentService(app.DB, &repository.RentalRepository{
+	paymentService := service.NewPaymentService(app.DB, &repository.PaymentRepository{
 		GormRepository: *datastore.NewGormRepository(),
 	})
 
