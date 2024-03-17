@@ -56,7 +56,11 @@ services:
     hostname: rental_app
     env_file:
       - ./data/config/.env
-
+  mailcatcher:
+    image: dockage/mailcatcher:0.9.0
+    ports:
+      - "1080:1080"
+      - "1025:1025"
     
 
       

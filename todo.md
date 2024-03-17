@@ -14,8 +14,16 @@
 
 > ~~Calculate Rental Fees~~
 
+> ~~Multiple Payments for single rental~~
+
 > Movies Validation
 
 > User Validation
 
-> Multiple Payments for single rental
+> Forgot password
+
+> SMTP - Email Sending after renting a movie
+
+> Password changing option
+
+> Email Service working with rabbitMQ 
