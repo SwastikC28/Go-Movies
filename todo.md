@@ -1,11 +1,21 @@
-> Auth Service DONE
+> ~~Auth Service~~
 
-> Update API for every service
+> ~~Update API for every service~~
 
-> Access Guard (isAdmin remaining)
+> ~~Access Guard (isAdmin remaining)~~
 
-> Validation 
+> ~~Rental Service~~
 
-> Rental Service
+> ~~Preload~~
 
-> Preload 
+> ~~Return the movie - Increment in movie database - Calculate rental price~~
+
+> ~~Payment Method~~
+
+> ~~Calculate Rental Fees~~
+
+> Movies Validation
+
+> User Validation
+
+> Multiple Payments for single rental
