@@ -47,6 +47,8 @@ services:
     depends_on:
       - mariadb
     restart: always
+    env_file:
+      - ./data/config/.env
   rental-service:
     build:
       context: ./rental-service
@@ -61,14 +63,21 @@ services:
     ports:
       - "1080:1080"
       - "1025:1025"
+    hostname: mailcatcher
   rabbitmq:
     image: rabbitmq:management
+    hostname: rabbitmq
     ports:
       - "15672:15672"
       - "5672:5672"
+    volumes:
+      - "./data/rabbitmq_data:/var/log/rabbitmq"
+      - "./data/rabbitmq_data:/var/lib/rabbitmq"
   mailer-service:
     build:
       context: ./mailer-service
       dockerfile: Dockerfile
     depends_on:
-      - rabbitmq      
+      - rabbitmq 
+    env_file:
+      - ./data/config/.env
