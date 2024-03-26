@@ -1,5 +1,6 @@
+.env
 vendor
 data/maria_data
-.env
-
+data/rabbitmq_data
 razor-front
+
