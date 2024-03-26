@@ -2,9 +2,11 @@ package main
 
 import (
 	"auth-service/internal/config"
-	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -32,10 +34,17 @@ func main() {
 
 	// Start Microservice
 	log.Println("Auth microservice started successfully.")
-	err := authMS.StartServer()
-	if err != nil {
-		fmt.Println(err)
-	}
+	go authMS.StartServer()
+
+	config.StartEventHandler()
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigs
+
+	config.StopEventHandler()
+	authMS.StopServer()
 }
 
 func connectDB() *gorm.DB {
