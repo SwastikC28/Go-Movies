@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"shared/middleware"
+	"shared/pkg/event/publisher"
 	"shared/pkg/web"
 	"shared/security"
 
@@ -15,7 +16,8 @@ import (
 )
 
 type AuthController struct {
-	service *service.AuthService
+	service         *service.AuthService
+	eventDispatcher publisher.Dispatcher
 }
 
 func (controller *AuthController) RegisterRoutes(router *mux.Router) {
@@ -29,9 +31,10 @@ func (controller *AuthController) RegisterRoutes(router *mux.Router) {
 
 }
 
-func NewAuthController(service *service.AuthService) *AuthController {
+func NewAuthController(service *service.AuthService, eventDispatcher publisher.Dispatcher) *AuthController {
 	return &AuthController{
-		service: service,
+		service:         service,
+		eventDispatcher: eventDispatcher,
 	}
 }
 
@@ -107,5 +110,6 @@ func (controller *AuthController) register(w http.ResponseWriter, r *http.Reques
 		Token:   token,
 	}
 
+	controller.eventDispatcher.Publish("correlationId", "mailer.register", authDTO)
 	web.RespondJSON(w, http.StatusOK, authDTO)
 }
