@@ -6,6 +6,5 @@ package monitor
 // AddRoute method to bind event to a handler
 
 type EventInfo struct {
-	Name    string
 	Payload interface{}
 }
