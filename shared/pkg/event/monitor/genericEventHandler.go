@@ -137,11 +137,15 @@ func (e *GenericEventHandler) listen() {
 					continue
 				}
 
-				evt := EventInfo{}
-				err := json.Unmarshal(log.Body, &evt)
+				var payload interface{}
+				err := json.Unmarshal(log.Body, &payload)
 				if err != nil {
 					fmt.Println("Error Unmarshalling data")
 					continue
+				}
+
+				evt := EventInfo{
+					Payload: payload,
 				}
 
 				handler(context.Background(), &evt)
