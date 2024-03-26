@@ -5,21 +5,24 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
-	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/jinzhu/gorm"
 )
 
 type App struct {
 	Name   string
-	AMQP   *amqp.Connection
+	WG     *sync.WaitGroup
 	Server http.Server
+	DB     *gorm.DB
 }
 
-func NewApp(name string, AMQP *amqp.Connection) *App {
+func NewApp(name string, db *gorm.DB, wg *sync.WaitGroup) *App {
 	return &App{
 		Name: name,
-		AMQP: AMQP,
+		WG:   wg,
+		DB:   db,
 	}
 }
 
@@ -39,7 +42,7 @@ func (app *App) StartServer() error {
 		return err
 	}
 
-	log.Println("Server Started on PORT 80")
+	log.Println("Server Started on PORT 4000")
 	return nil
 }
 
@@ -53,6 +56,9 @@ func (app *App) StopServer() {
 		fmt.Println("Fail to stop server.")
 		return
 	}
+
+	// close db connection
+	app.DB.Close()
 
 	log.Println("Server shutdown successfully.")
 }

@@ -5,9 +5,16 @@ import (
 	"html/template"
 	"time"
 
-	premailer "github.com/vanng822/go-premailer/premailer"
+	"github.com/vanng822/go-premailer/premailer"
 	mail "github.com/xhit/go-simple-mail/v2"
 )
+
+type MailMessage struct {
+	From    string `json:"from"`
+	To      string `json:"to"`
+	Subject string `json:"subject"`
+	Message string `json:"message"`
+}
 
 type Mail struct {
 	Domain      string
@@ -24,7 +31,6 @@ type Message struct {
 	From        string
 	FromName    string
 	To          string
-	ToName      string
 	Subject     string
 	Attachments []string
 	Data        interface{}
@@ -72,7 +78,9 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 	}
 
 	email := mail.NewMSG()
-	email.SetFrom(msg.From).AddTo(msg.To).SetSubject(msg.Subject)
+	email.SetFrom(msg.From).
+		AddTo(msg.To).
+		SetSubject(msg.Subject)
 
 	email.SetBody(mail.TextPlain, plainMessage)
 	email.AddAlternative(mail.TextHTML, formattedMessage)
@@ -92,7 +100,7 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 }
 
 func (m *Mail) buildHTMLMessage(msg Message) (string, error) {
-	templateToRender := "./template/mail.html/html"
+	templateToRender := "./templates/mail.html.gohtml"
 
 	t, err := template.New("email-html").ParseFiles(templateToRender)
 	if err != nil {
