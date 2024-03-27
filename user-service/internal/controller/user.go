@@ -29,6 +29,7 @@ func (controller *UserController) RegisterRoutes(router *mux.Router) {
 	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.getUserById, false)).Methods(http.MethodGet)
 	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteUserById, false)).Methods(http.MethodDelete)
 	userRouter.HandleFunc("/{id}", web.AccessGuard(controller.updateUser, false)).Methods(http.MethodPut)
+	userRouter.HandleFunc("/{id}/change-password", web.AccessGuard(controller.updatePassword, false)).Methods(http.MethodPut)
 }
 
 func NewUserController(service *service.UserService) *UserController {
@@ -120,6 +121,9 @@ func (controller *UserController) updateUser(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Should not be able to change password
+	user.Password = ""
+
 	err := controller.service.UpdateUser(&user)
 	if err != nil {
 		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
@@ -127,4 +131,45 @@ func (controller *UserController) updateUser(w http.ResponseWriter, r *http.Requ
 	}
 
 	web.RespondJSON(w, http.StatusOK, "User Updated Successfully.")
+}
+
+func (controller *UserController) updatePassword(w http.ResponseWriter, r *http.Request) {
+	var user = struct {
+		Email           string `json:"email"`
+		CurrentPassword string `json:"currentPassword"`
+		NewPassword     string `json:"newPassword"`
+	}{}
+
+	web.UnmarshalJSON(r, &user)
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+
+	token := security.TokenFromContext(r.Context())
+
+	if token.ID.String() != id && !token.IsAdmin {
+		web.RespondJSON(w, http.StatusUnauthorized, "User unauthorized to access this route")
+		return
+	}
+
+	var existingUser model.User
+	err := controller.service.GetUser(&existingUser, []datastore.QueryProcessor{datastore.Filter("email = ?", user.Email)})
+	if err != nil {
+		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = web.ComparePassword(user.CurrentPassword, []byte(existingUser.Password))
+	if err != nil {
+		web.RespondJSON(w, http.StatusUnauthorized, "Incorrect current password. Please try again.")
+		return
+	}
+
+	err = controller.service.ChangedPassword(&existingUser, user.NewPassword)
+	if err != nil {
+		web.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	web.RespondJSON(w, http.StatusOK, "User Password Changed Successfully.")
 }

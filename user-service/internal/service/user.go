@@ -4,6 +4,7 @@ import (
 	"log"
 	"shared/datastore"
 	"shared/datastore/relationaldb"
+	"shared/pkg/web"
 	"user-service/internal/model"
 
 	"github.com/jinzhu/gorm"
@@ -119,5 +120,23 @@ func (service *UserService) UpdateUser(user *model.User) error {
 	}
 
 	uow.Commit()
+	return nil
+}
+
+func (service *UserService) ChangedPassword(user *model.User, newPassword string) error {
+	uow := relationaldb.NewUnitOfWork(service.db, true)
+
+	hashPassword, err := web.EncryptPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	user.Password = string(hashPassword)
+
+	err = service.repo.Save(uow, &user)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
