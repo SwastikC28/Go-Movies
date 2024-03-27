@@ -6,7 +6,6 @@ replace shared => ../shared
 
 require (
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/razorpay/razorpay-go v1.3.1
@@ -15,9 +14,9 @@ require (
 )
 
 require (
-	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
+	github.com/streadway/amqp v1.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd // indirect
 )

@@ -11,6 +11,7 @@ import (
 	"rental-service/internal/model"
 	"rental-service/internal/service"
 	"shared/middleware"
+	"shared/pkg/event/publisher"
 	"shared/pkg/web"
 
 	"github.com/gorilla/mux"
@@ -18,7 +19,8 @@ import (
 )
 
 type PaymentController struct {
-	service *service.PaymentService
+	service    *service.PaymentService
+	dispatcher publisher.Dispatcher
 }
 
 func (controller *PaymentController) RegisterRoutes(router *mux.Router) {
@@ -31,9 +33,10 @@ func (controller *PaymentController) RegisterRoutes(router *mux.Router) {
 	paymentRouter.HandleFunc("/{rentalId}", controller.CreateOrder).Methods(http.MethodPost)
 }
 
-func NewPaymentController(service *service.PaymentService) *PaymentController {
+func NewPaymentController(service *service.PaymentService, dispatcher publisher.Dispatcher) *PaymentController {
 	return &PaymentController{
-		service: service,
+		service:    service,
+		dispatcher: dispatcher,
 	}
 }
 

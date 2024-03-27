@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"rental-service/internal/config"
 	"sync"
+	"syscall"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -22,7 +24,7 @@ func main() {
 		panic("Failed to connect to DB")
 	}
 
-	rentalMS := config.NewApp("movie-service", db, &sync.WaitGroup{})
+	rentalMS := config.NewApp("rental-service", db, &sync.WaitGroup{})
 
 	// Initialize User Microservice
 	rentalMS.Init()
@@ -35,10 +37,18 @@ func main() {
 
 	// Start Microservice
 	log.Println("Rental microservice started successfully.")
-	err := rentalMS.StartServer()
-	if err != nil {
-		fmt.Println(err)
-	}
+	go rentalMS.StartServer()
+
+	config.StartEventHandler()
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigs
+
+	config.StopEventHandler()
+	rentalMS.StopServer()
+
 }
 
 func connectDB() *gorm.DB {
@@ -77,5 +87,4 @@ func connectDB() *gorm.DB {
 		time.Sleep(2 * time.Second)
 		continue
 	}
-
 }

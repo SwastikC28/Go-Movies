@@ -7,6 +7,7 @@ import (
 	"rental-service/internal/service"
 	"shared/datastore"
 	"shared/middleware"
+	"shared/pkg/event/publisher"
 	"shared/pkg/web"
 	"shared/security"
 	"time"
@@ -17,7 +18,8 @@ import (
 )
 
 type RentalController struct {
-	service *service.RentalService
+	service    *service.RentalService
+	dispatcher publisher.Dispatcher
 }
 
 func (controller *RentalController) RegisterRoutes(router *mux.Router) {
@@ -34,9 +36,10 @@ func (controller *RentalController) RegisterRoutes(router *mux.Router) {
 	rentalRouter.HandleFunc("/{id}", web.AccessGuard(controller.deleteRentalById, true)).Methods(http.MethodDelete)
 }
 
-func NewRentalController(service *service.RentalService) *RentalController {
+func NewRentalController(service *service.RentalService, dispatcher publisher.Dispatcher) *RentalController {
 	return &RentalController{
-		service: service,
+		service:    service,
+		dispatcher: dispatcher,
 	}
 }
 

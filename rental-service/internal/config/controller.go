@@ -3,15 +3,30 @@ package config
 import (
 	"fmt"
 	"log"
+	"os"
 	"rental-service/internal/controller"
 	"rental-service/internal/model"
 
 	"rental-service/internal/repository"
 	"rental-service/internal/service"
 	"shared/datastore"
+	"shared/pkg/event/publisher"
 
 	"github.com/gorilla/mux"
 )
+
+var eventHandler interface{}
+
+func init() {
+	exchangeKey := os.Getenv("RABBITMQ_EXCHANGE_KEY")
+
+	dispatcher, err := publisher.NewDispatchHandler(exchangeKey)
+	if err != nil {
+		fmt.Println("There was some problem creating dispatcher", err)
+	}
+
+	eventHandler = dispatcher
+}
 
 type Controller interface {
 	RegisterRoute(router *mux.Router)
@@ -24,7 +39,7 @@ func RegisterRentalRoutes(app *App) {
 		GormRepository: *datastore.NewGormRepository(),
 	})
 
-	rentalController := controller.NewRentalController(rentalService)
+	rentalController := controller.NewRentalController(rentalService, eventHandler.(publisher.Dispatcher))
 
 	rentalController.RegisterRoutes(app.Router)
 }
@@ -36,7 +51,7 @@ func RegisterPaymentRoutes(app *App) {
 		GormRepository: *datastore.NewGormRepository(),
 	})
 
-	paymentController := controller.NewPaymentController(paymentService)
+	paymentController := controller.NewPaymentController(paymentService, eventHandler.(publisher.Dispatcher))
 
 	paymentController.RegisterRoutes(app.Router)
 }
