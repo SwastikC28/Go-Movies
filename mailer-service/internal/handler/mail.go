@@ -3,8 +3,10 @@ package handler
 import (
 	"context"
 	"fmt"
+	"mailer-service/internal/constants"
 	"mailer-service/internal/model"
 	"mailer-service/internal/service"
+	"mailer-service/internal/utils"
 	"os"
 	"shared/pkg/event/monitor"
 )
@@ -39,11 +41,29 @@ func (m *MailEventHandler) SendRegisterMail(ctx context.Context, evt *monitor.Ev
 		To:          user.Email,
 		Subject:     os.Getenv("REGISTER_MAIL_SUBJECT"),
 		Attachments: []string{},
-		Data:        nil,
+		Data:        constants.GetRegisterHTMLBody(user.Name),
 		DataMap:     map[string]interface{}{},
 	}
 
-	err := m.MailService.SendMail(msg)
+	data := map[string]interface{}{
+		"message": msg.Data,
+	}
+
+	msg.DataMap = data
+
+	formattedMessage, err := utils.BuildHTMLMessage(msg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	plainMessage, err := utils.BuildPlainTextMessage(msg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = m.MailService.SendMail(msg, formattedMessage, plainMessage)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -18,6 +18,8 @@ WORKDIR /app
 # Copy the binary from the builder stage to the production image
 COPY --from=builder /build/main .
 
+COPY ./internal/templates .
+
 
 # Command to run the executable
 CMD ["./main"]
