@@ -110,6 +110,6 @@ func (controller *AuthController) register(w http.ResponseWriter, r *http.Reques
 		Token:   token,
 	}
 
-	controller.eventDispatcher.Publish("correlationId", "mailer.register", authDTO)
+	controller.eventDispatcher.Publish("correlationId", "mailer.user.register", authDTO)
 	web.RespondJSON(w, http.StatusOK, authDTO)
 }
